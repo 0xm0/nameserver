@@ -1,0 +1,32 @@
+{
+  "name": "nameserver",
+  "version": "1.0.0",
+  "description": "DNS nameserver",
+  "bin": {
+    "nameserver": "bin/nameserver.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MangoRaft/nameserver.git"
+  },
+  "keywords": [
+    "DNS",
+    "nameserver"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MangoRaft/nameserver/issues"
+  },
+  "homepage": "https://github.com/MangoRaft/nameserver#readme",
+  "dependencies": {
+    "async": "^2.1.4",
+    "bluebird": "^3.4.6",
+    "commander": "^2.9.0",
+    "native-dns": "^0.7.0",
+    "tldjs": "^1.7.0"
+  }
+}
