@@ -1,6 +1,7 @@
 Welcome to nameserver!	{#welcome}
 =====================
 
+Redis backed nameserver with lru cache.
 
 Install
 ---------
