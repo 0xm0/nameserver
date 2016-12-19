@@ -25,7 +25,7 @@ server.option('-t, --tcp', 'Start TCP-Server', false);
 server.option('-u, --udp', 'Start UDP-Server', false);
 server.option('-c, --cluster', 'Start server as cluster', false);
 
-server.option('-f, --nameserver', 'Nameserver (default: ns1.local:127.0.0.1,ns2.local:127.0.0.1)', 'ns1.local:127.0.0.1,ns2.local:127.0.0.1');
+server.option('-f, --nameserver  <NAMESERVER>', 'Nameserver (default: ns1.example.com:127.0.0.1,ns1.example.com:127.0.0.1)', 'ns1.example.com:127.0.0.1,ns1.example.com:127.0.0.1');
 
 server.action(function(options) {
 
@@ -37,18 +37,17 @@ server.action(function(options) {
 	if (options.redisAuth) {
 		redis.auth = options.redisAuth;
 	}
-
 	var cache = require('../lib/cache')(redis, {});
 
 	var nameservers = options.nameserver.split(',').map(function(name) {
 		name = name.split(':');
 		return {
 			name : name[0],
-			ipv4 : name[2]
+			ipv4 : name[1]
 		};
 	});
 
-	var ns = require('./ddns').create({
+	var ns = require('ddns-nameserver').create({
 		primaryNameserver : nameservers[0].name,
 		nameservers : nameservers,
 		getAnswerList : function(questions, cb) {
@@ -90,7 +89,7 @@ server.action(function(options) {
 			});
 		}
 	});
-	
+
 	if (options.cluster) {
 		var numCPUs = require('os').cpus().length;
 		if (cluster.isMaster) {
