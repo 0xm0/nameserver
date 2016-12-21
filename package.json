@@ -1,6 +1,6 @@
 {
   "name": "nameserver",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "DNS nameserver",
   "bin": {
     "nameserver": "bin/nameserver.js"
@@ -26,7 +26,6 @@
     "async": "^2.1.4",
     "bluebird": "^3.4.6",
     "commander": "2.2.0",
-    "ddns-nameserver": "^1.0.1",
     "lru-cache": "^4.0.2",
     "native-dns": "^0.7.0",
     "redis": "^2.6.3",

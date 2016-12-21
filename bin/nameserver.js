@@ -25,8 +25,6 @@ server.option('-t, --tcp', 'Start TCP-Server', false);
 server.option('-u, --udp', 'Start UDP-Server', false);
 server.option('-c, --cluster', 'Start server as cluster', false);
 
-server.option('-f, --nameserver  <NAMESERVER>', 'Nameserver (default: ns1.example.com:127.0.0.1,ns1.example.com:127.0.0.1)', 'ns1.example.com:127.0.0.1,ns1.example.com:127.0.0.1');
-
 server.action(function(options) {
 
 	var redis = {
@@ -39,56 +37,7 @@ server.action(function(options) {
 	}
 	var cache = require('../lib/cache')(redis, {});
 
-	var nameservers = options.nameserver.split(',').map(function(name) {
-		name = name.split(':');
-		return {
-			name : name[0],
-			ipv4 : name[1]
-		};
-	});
-
-	var ns = require('ddns-nameserver').create({
-		primaryNameserver : nameservers[0].name,
-		nameservers : nameservers,
-		getAnswerList : function(questions, cb) {
-
-			var answers = [];
-
-			async.parallel(questions.map(function(question) {
-				return function(next) {
-					cache.getDnsFromHostType(question.name, question.type, function(err, data) {
-
-						if (err) {
-							return next();
-						}
-
-						async.parallel(data.backends.map(function(ip) {
-							return function(next) {
-								answers.push({
-									registered : true,
-									host : question.name,
-									name : question.name,
-									type : data.type,
-									zone : tld.getDomain(question.name),
-									ttl : data.ttl,
-									priority : data.priority,
-									value : ip,
-									ip : ip,
-									data : data.data
-								});
-								next();
-
-							};
-						}), next);
-					});
-				};
-			}), function() {
-				cb(null, answers.filter(function(a) {
-					return a;
-				}));
-			});
-		}
-	});
+	var ns = require('../lib/ddns').create(cache);
 
 	if (options.cluster) {
 		var numCPUs = require('os').cpus().length;
@@ -105,31 +54,32 @@ server.action(function(options) {
 		udp();
 	}
 
-	function setupServer(server) {
-		server.on('error', ns.onError);
-		server.on('socketError', ns.onSocketError);
-		server.on('request', ns.onRequest);
+	function setupServer(server, type) {
+		server.on('error', function(err) {
+			console.log(err)
+		});
+		server.on('socketError', function(err) {
+			console.log(err)
+		});
+		server.on('request', ns);
 		server.on('listening', function() {
-			console.info('DNS Server running on port: ', options.port);
+			console.info(type + ' Server running: ', server.address().address + ':' + server.address().port);
 		});
 	}
 
 	function tcp() {
-		if (options.web) {
-
+		if (options.tcp) {
 			var tcpDns = ndns.createTCPServer();
-			setupServer(tcpDns);
-			tcpDns.serve(options.port, options.host);
-
+			setupServer(tcpDns, 'TCP');
+			tcpDns.serve(options.port, options.addr);
 		}
 	}
 
 	function udp() {
 		if (options.udp) {
-
 			var udpDns = ndns.createServer();
-			setupServer(udpDns);
-			udpDns.serve(options.port, options.host);
+			setupServer(udpDns, 'UDP');
+			udpDns.serve(options.portUdp, options.addr);
 		}
 	}
 

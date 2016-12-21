@@ -40,7 +40,6 @@ $ logster-redis server -h
     -t, --tcp                    Start TCP-Server
     -u, --udp                    Start UDP-Server
     -c, --cluster                Start server as cluster
-    -f, --nameserver             Nameserver (default: ns1.local:127.0.0.1,ns2.local:127.0.0.1)
 
 ```
 #####Example
