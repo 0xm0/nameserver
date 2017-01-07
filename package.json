@@ -1,6 +1,6 @@
 {
   "name": "nameserver",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "DNS nameserver",
   "bin": {
     "nameserver": "bin/nameserver.js"
