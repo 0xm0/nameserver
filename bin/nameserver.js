@@ -92,14 +92,14 @@ server.action(function(options) {
 
 	function setupServer(server, type) {
 		server.on('error', function(err) {
-			console.log(err)
+			(logHandler || console).log(err)
 		});
 		server.on('socketError', function(err) {
-			console.log(err)
+			(logHandler || console).log(err)
 		});
 		server.on('request', ns);
 		server.on('listening', function() {
-			console.info(type + ' Server running: ', server.address().address + ':' + server.address().port);
+			(logHandler || console).info(type + ' Server running: ', server.address().address + ':' + server.address().port);
 		});
 	}
 
