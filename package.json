@@ -1,6 +1,6 @@
 {
   "name": "nameserver",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "DNS nameserver",
   "bin": {
     "nameserver": "bin/nameserver.js"
@@ -28,6 +28,7 @@
     "commander": "2.2.0",
     "lru-cache": "^4.0.2",
     "native-dns": "^0.7.0",
+    "raft-logger-redis": "^0.2.x",
     "redis": "^2.6.3",
     "tldjs": "^1.7.0"
   }

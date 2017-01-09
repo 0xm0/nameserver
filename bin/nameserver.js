@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+//#!/usr/bin/env node
 
 var program = require('commander');
 var cluster = require('cluster');
@@ -6,6 +6,7 @@ var path = require('path');
 var ndns = require('native-dns');
 var async = require('async');
 var tld = require('tldjs');
+var Logger = require('raft-logger-redis').Logger;
 
 program.version(require('../package.json').version);
 process.on('uncaughtException', function(err) {
@@ -25,8 +26,16 @@ server.option('-t, --tcp', 'Start TCP-Server', false);
 server.option('-u, --udp', 'Start UDP-Server', false);
 server.option('-c, --cluster', 'Start server as cluster', false);
 
+server.option('-l, --logging', 'Start logging (default: false)', false);
+server.option('-v, --log-udp-port [LOG-UDP-PORT]', 'Use PORT (default: 5001)', 5001);
+server.option('-x, --log-tcp-port [LOG-TCP-PORT]', 'Use PORT (default: 5000)', 5000);
+server.option('-y, --log-host [HOST]', 'Use HOST (default: 127.0.0.1)', '127.0.0.1');
+server.option('-z, --session [SESSION]', 'Use SESSION (default: dns)', 'DNS');
+server.option('-f, --channel [CHANNEL]', 'Use CHANNEL (default: ns.0)', 'ns.0');
+server.option('-g, --source [SOURCE]', 'Use SOURCE (default: dns)', 'dns');
 server.action(function(options) {
 
+	var logHandler;
 	var redis = {
 		host : options.redisAddr,
 		port : options.redisPort
@@ -35,7 +44,34 @@ server.action(function(options) {
 	if (options.redisAuth) {
 		redis.auth = options.redisAuth;
 	}
-	var cache = require('../lib/cache')(redis, {});
+
+	if (options.logging) {
+		var logs = Logger.createLogger({
+			"web" : {
+				"port" : options.logTcpPort,
+				"host" : options.logHost
+			},
+			"udp" : {
+				"port" : options.logUdpPort,
+				"host" : options.logHost
+			},
+			"view" : {
+				"port" : options.logTcpPort,
+				"host" : options.logHost
+			}
+		});
+
+		logHandler = logs.create({
+			source : options.source,
+			channel : options.channel,
+			session : options.session,
+			bufferSize : 1
+		});
+	}
+
+	var cache = require('../lib/cache')(redis, {
+		logHandler : logHandler
+	});
 
 	var ns = require('../lib/ddns').create(cache);
 
